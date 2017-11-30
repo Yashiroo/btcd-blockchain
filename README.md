@@ -1,5 +1,5 @@
 # btcd-blockchain
 
-This repository contains random utilities related to the bitcoin daemon written in Go `btcd`.
+This repository contains random utilities and packages related to the bitcoin blockchain.
 
-You can check out the project here: https://github.com/btcsuite/btcd
+We make use of the btcd rpc server to perform our queries. You can check out the project here: https://github.com/btcsuite/btcd
