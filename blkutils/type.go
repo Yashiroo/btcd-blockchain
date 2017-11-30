@@ -1,4 +1,4 @@
-package block_utilities
+package blkutils
 
 import (
 	"github.com/btcsuite/btcd/rpcclient"

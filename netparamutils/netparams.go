@@ -1,4 +1,4 @@
-package net_utilities
+package netparams
 
 import (
 	"github.com/btcsuite/btcd/chaincfg"

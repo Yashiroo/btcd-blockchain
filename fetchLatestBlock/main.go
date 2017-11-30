@@ -7,9 +7,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"runtime"
 	"fmt"
-	"github.com/yashirooo/btcd-misc/block_utilities"
-	"github.com/yashirooo/btcd-misc/net_utilities"
 	"github.com/btcsuite/btcd/rpcclient"
+	"github.com/yashirooo/btcd-misc/netparamutils"
+	"github.com/yashirooo/btcd-misc/blkutils"
 )
 
 
@@ -23,7 +23,7 @@ func main() {
 	flag.Parse()
 
 	// load network params from preferred network flag
-	network, err := net_utilities.NewNetworkParams(*prefNetwork)
+	network, err := netparams.NewNetworkParams(*prefNetwork)
 	if err != nil{
 		logrus.Fatalf("Could not parse pref network")
 	}
@@ -62,7 +62,7 @@ func main() {
 
 
 	// prepare our fetcher
-	fetcher, err := block_utilities.NewFetcher(rpcClient,network)
+	fetcher, err := blkutils.NewFetcher(rpcClient,network)
 	if err != nil{
 		logrus.Fatalf("Error creating a new fetcher: %s",err)
 	}
