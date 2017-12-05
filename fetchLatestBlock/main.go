@@ -83,5 +83,17 @@ func main() {
 		fmt.Println("This block has no transactions!")
 		return
 	}
-	fmt.Printf("First tx hash: %s",block.Transactions[0].TxHash().String())
+	fmt.Printf("First tx hash: %s\n",block.Transactions[0].TxHash().String())
+
+	// retrieve a random address
+	addr, err := fetcher.RandomAddressFromBlock(block)
+	if err != nil{
+		logrus.Fatalf("Error finding random address from given block: %s",err)
+	}
+	// print its balance
+	amount, err := fetcher.CalculateBalanceFor(addr)
+	if err != nil{
+		logrus.Fatalf("Error calculating balance for given address: %s",err)
+	}
+	fmt.Printf("Balance for %s is %f\n",addr.String(),amount.ToBTC())
 }
