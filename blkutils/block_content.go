@@ -5,6 +5,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/yashirooo/btcd-misc/addrutils"
+	"github.com/go-errors/errors"
 )
 
 // RetrieveLatestBlock retrieves the latest validated block on the current chain
@@ -53,7 +54,7 @@ func (f Fetcher) ShowPeerInfo(){
 }
 
 //CalculateBalanceFor calculates the balance for a given pay-to address
-func (f Fetcher) CalculateBalanceFor(address btcutil.AddressPubKey) (btcutil.Amount, error){
+func (f Fetcher) CalculateBalanceFor(address btcutil.Address) (btcutil.Amount, error){
 
 	//filter needed to search for transactions
 	var filteraddrs []string = []string{address.EncodeAddress()}
@@ -97,6 +98,23 @@ func (f Fetcher) CalculateBalanceFor(address btcutil.AddressPubKey) (btcutil.Amo
 	balance := sumin - sumout
 
 	return balance, nil
+}
+
+// RandomAddressFromBlock fetches a random address from the first transaction in this block
+func (f Fetcher) RandomAddressFromBlock(block *wire.MsgBlock) (btcutil.Address, error){
+	//check if there are inputs
+	if len(block.Transactions) != 0{
+		tx := block.Transactions[len(block.Transactions)/2]
+		if len(tx.TxIn) != 0{
+			addresses, err := f.ExtractRandomPublicKeyFromPKScript(tx.TxOut[len(tx.TxOut)/2].PkScript)
+			if err != nil{
+				return nil, err
+			}
+			return addresses[len(addresses)/2], nil
+		}
+	}
+
+	return nil, errors.New("No transactions in block!")
 }
 
 

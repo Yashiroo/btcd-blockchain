@@ -12,10 +12,10 @@ func (f Fetcher) ExtractRandomPublicKeyFromPKScript(script []byte) ([]btcutil.Ad
 	//
 	_,addresses,_,err := txscript.ExtractPkScriptAddrs(script, &f.networkParams)
 	if err != nil{
-		return btcutil.AddressPubKey{}, err
+		return nil, err
 	}
 	if len(addresses) == 0{
-		return btcutil.Address{}, errors.New("Script contains no valid address!")
+		return nil, errors.New("Script contains no valid address!")
 	}
 	return addresses, nil
 }
