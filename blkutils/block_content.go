@@ -6,6 +6,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/yashirooo/btcd-misc/addrutils"
 	"github.com/go-errors/errors"
+	"github.com/hyperledger/fabric/gossip/util"
 )
 
 // RetrieveLatestBlock retrieves the latest validated block on the current chain
@@ -54,17 +55,20 @@ func (f Fetcher) ShowPeerInfo(){
 }
 
 //CalculateBalanceFor calculates the balance for a given pay-to address
-func (f Fetcher) CalculateBalanceFor(address btcutil.Address) (btcutil.Amount, error){
+func (f Fetcher) CalculateConfirmedBalanceFor(address btcutil.Address) (btcutil.Amount, error){
 
 	//filter needed to search for transactions
 	var filteraddrs []string = []string{address.EncodeAddress()}
-
+	logrus.Infof("Looking for transactions for %s ..",address.EncodeAddress())
 	//search for transactions involving the given address
-	searchRawResult, err := f.rpcClient.SearchRawTransactionsVerbose(address,0,0,true,false,filteraddrs)
+	searchRawResult, err := f.rpcClient.SearchRawTransactionsVerbose(address,0,1000000,true,false,filteraddrs)
 	if err != nil{
 		logrus.Errorf("Error retrieving raw transactions: %s",err)
 	}
-
+	if len(searchRawResult) == 0{
+		return 0, errors.New("No transactions found for given address!")
+	}
+	logrus.Infof("Found %d transactions involving %s",len(searchRawResult),address.EncodeAddress())
 	var sumin btcutil.Amount
 	var sumout btcutil.Amount
 	//while looping over txs, let's not forget that there may be immature coinbase txs
@@ -78,7 +82,7 @@ func (f Fetcher) CalculateBalanceFor(address btcutil.Address) (btcutil.Amount, e
 					if err != nil {
 						continue
 					}
-					sumin += amount
+					sumout += amount
 				}
 
 			}
@@ -90,7 +94,7 @@ func (f Fetcher) CalculateBalanceFor(address btcutil.Address) (btcutil.Amount, e
 				if err != nil {
 					continue
 				}
-				sumout += amount
+				sumin += amount
 			}
 
 		}
@@ -104,9 +108,12 @@ func (f Fetcher) CalculateBalanceFor(address btcutil.Address) (btcutil.Amount, e
 func (f Fetcher) RandomAddressFromBlock(block *wire.MsgBlock) (btcutil.Address, error){
 	//check if there are inputs
 	if len(block.Transactions) != 0{
-		tx := block.Transactions[len(block.Transactions)/2]
-		if len(tx.TxIn) != 0{
-			addresses, err := f.ExtractRandomPublicKeyFromPKScript(tx.TxOut[len(tx.TxOut)/2].PkScript)
+		randomTXNum := util.RandomInt(len(block.Transactions))
+		tx := block.Transactions[randomTXNum]
+		if len(tx.TxOut) != 0{
+			randomTxOutNum := util.RandomInt(len(tx.TxOut))
+			txOut := tx.TxOut[randomTxOutNum]
+			addresses, err := f.ExtractRandomPublicKeyFromPKScript(txOut.PkScript)
 			if err != nil{
 				return nil, err
 			}

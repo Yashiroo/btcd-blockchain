@@ -90,10 +90,15 @@ func main() {
 	if err != nil{
 		logrus.Fatalf("Error finding random address from given block: %s",err)
 	}
+	//new addr
+	//addr,err := btcutil.DecodeAddress("1DRN2FCFYgjz6cWm6Pby81ztr87Ez9rjUu", &network)
+	//if err != nil{
+	//	logrus.Fatalf("Error creating address: %s",err)
+	//}
 	// print its balance
-	amount, err := fetcher.CalculateBalanceFor(addr)
+	amount, err := fetcher.CalculateConfirmedBalanceFor(addr)
 	if err != nil{
 		logrus.Fatalf("Error calculating balance for given address: %s",err)
 	}
-	fmt.Printf("Balance for %s is %f\n",addr.String(),amount.ToBTC())
+	fmt.Printf("Confirmed balance for %s is %f\n",addr.String(),amount.ToBTC())
 }
