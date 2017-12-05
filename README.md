@@ -1,4 +1,4 @@
-# btcd-blockchain
+# btcd-misc
 
 This repository contains random utilities and packages related to the bitcoin blockchain.
 
